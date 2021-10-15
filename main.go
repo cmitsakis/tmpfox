@@ -31,6 +31,7 @@ func (s *setOfStrings) Set(v string) error {
 
 type options struct {
 	Help           bool
+	License        bool
 	ProfilesDir    string
 	Keep           bool
 	UserJsURL      string
@@ -43,6 +44,7 @@ func main() {
 	var o options
 	o.Extensions = make(setOfStrings)
 	flag.BoolVar(&o.Help, "help", false, "Print usage")
+	flag.BoolVar(&o.License, "license", false, "Licensing information")
 	flag.StringVar(&o.ProfilesDir, "dir", filepath.Join(os.TempDir(), appName), "Profiles' directory")
 	flag.BoolVar(&o.Keep, "keep", false, "Do not delete profile on exit")
 	flag.StringVar(&o.UserJsURL, "userjs", "https://raw.githubusercontent.com/arkenfox/user.js/master/user.js", "user.js download URL")
@@ -63,6 +65,10 @@ func main() {
 func run(o options) error {
 	if o.Help {
 		flag.PrintDefaults()
+	}
+	if o.License {
+		fmt.Printf("[License]\n\n%s\n\n[Third party licenses]\n\n%s\n", license, strings.Join(licenseDeps, "\n"))
+		return nil
 	}
 
 	// create directories
