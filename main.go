@@ -68,7 +68,7 @@ func run(o options) error {
 		return nil
 	}
 	if o.License {
-		fmt.Printf("[License]\n\n%s\n\n[Third party licenses]\n\n%s\n", license, strings.Join(licenseDeps, "\n"))
+		fmt.Printf("%s\n\n[Third party licenses]\n\n%s\n", license, strings.Join(licenseDeps, "\n"))
 		return nil
 	}
 

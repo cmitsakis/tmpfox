@@ -1,6 +1,9 @@
 package main
 
-const license = `tmpfox is licensed under the EUPL-1.2-or-later
+const license = `Copyright (C) 2021 Charalampos Mitsakis (go.mitsakis.org/tmpfox)
+
+tmpfox is licensed under the EUPL-1.2-or-later
+
 The text of the license is available at:
 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12`
 
