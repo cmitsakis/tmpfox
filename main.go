@@ -43,7 +43,7 @@ func main() {
 	runtime.GOMAXPROCS(1)
 	var o options
 	o.Extensions = make(setOfStrings)
-	flag.BoolVar(&o.Help, "help", false, "Print usage")
+	flag.BoolVar(&o.Help, "h", false, "Print usage")
 	flag.BoolVar(&o.License, "license", false, "Licensing information")
 	flag.StringVar(&o.ProfilesDir, "dir", filepath.Join(os.TempDir(), appName), "Profiles' directory")
 	flag.BoolVar(&o.Keep, "keep", false, "Do not delete profile on exit")
@@ -65,6 +65,7 @@ func main() {
 func run(o options) error {
 	if o.Help {
 		flag.PrintDefaults()
+		return nil
 	}
 	if o.License {
 		fmt.Printf("[License]\n\n%s\n\n[Third party licenses]\n\n%s\n", license, strings.Join(licenseDeps, "\n"))
