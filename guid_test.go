@@ -3,6 +3,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"testing"
 	"time"
@@ -17,7 +18,7 @@ func TestExtractGuidFromHTML(t *testing.T) {
 	}
 	addonSlug := "ublock-origin"
 	addonPageURL := "https://addons.mozilla.org/en-US/firefox/addon/" + addonSlug + "/"
-	pageHTML, err := openURLHTML(client, addonPageURL)
+	pageHTML, err := openURLHTML(context.Background(), client, addonPageURL)
 	if err != nil {
 		t.Fatalf("cannot open url %s - error: %s", addonPageURL, err)
 	}

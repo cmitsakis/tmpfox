@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -93,6 +94,14 @@ func run(o options) error {
 			log.Printf("deleted profile at %s", profileDirPath)
 		}
 	}()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt)
+	go func() {
+		<-signals
+		cancel()
+	}()
 	profileExtensionsDirPath := filepath.Join(profileDirPath, "extensions")
 	err = os.MkdirAll(profileExtensionsDirPath, 0700)
 	if err != nil {
@@ -112,7 +121,7 @@ func run(o options) error {
 		userJsPath := filepath.Join(profileDirPath, "user.js")
 		if o.UserJsURL != "" {
 			log.Printf("downloading user.js %s --> %s", o.UserJsURL, userJsPath)
-			err = downloadFile(client, o.UserJsURL, userJsPath)
+			err = downloadFile(ctx, client, o.UserJsURL, userJsPath)
 			if err != nil {
 				return fmt.Errorf("failed to download user.js: %s", err)
 			}
@@ -142,7 +151,7 @@ func run(o options) error {
 		for extensionSlug := range o.Extensions {
 			extensionPageURL := "https://addons.mozilla.org/en-US/firefox/addon/" + extensionSlug + "/"
 			log.Println("visiting", extensionPageURL)
-			pageHTML, err := openURLHTML(client, extensionPageURL)
+			pageHTML, err := openURLHTML(ctx, client, extensionPageURL)
 			if err != nil {
 				return fmt.Errorf("cannot open url %s - error: %s", extensionPageURL, err)
 			}
@@ -153,7 +162,7 @@ func run(o options) error {
 			extensionXpiURL := "https://addons.mozilla.org/firefox/downloads/latest/" + extensionSlug + "/" + extensionSlug + ".xpi"
 			extensionXpiDownloadPath := filepath.Join(profileExtensionsDirPath, extensionGUID+".xpi")
 			log.Println("downloading extension", extensionXpiURL, "-->", extensionXpiDownloadPath)
-			err = downloadFile(client, extensionXpiURL, extensionXpiDownloadPath)
+			err = downloadFile(ctx, client, extensionXpiURL, extensionXpiDownloadPath)
 			if err != nil {
 				return fmt.Errorf("failed to download extension from url %s - error: %s", extensionXpiURL, err)
 			}
@@ -165,8 +174,6 @@ func run(o options) error {
 	profileCreated = true
 
 	// start firefox
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 	if err := exec.CommandContext(ctx, "firefox", "--no-remote", "--profile", profileDirPath).Run(); err != nil {
 		return fmt.Errorf("firefox execution failed: %s", err)
 	}

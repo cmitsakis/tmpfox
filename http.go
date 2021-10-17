@@ -3,6 +3,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -18,8 +19,8 @@ var headers = map[string]string{
 	"DNT":             "1",
 }
 
-func openURLHTML(client *http.Client, pageURL string) ([]byte, error) {
-	resp, err := openURLHTTP(client, pageURL)
+func openURLHTML(ctx context.Context, client *http.Client, pageURL string) ([]byte, error) {
+	resp, err := openURLHTTP(ctx, client, pageURL)
 	if err != nil {
 		return nil, err
 	}
@@ -33,8 +34,8 @@ func openURLHTML(client *http.Client, pageURL string) ([]byte, error) {
 	return body, nil
 }
 
-func downloadFile(client *http.Client, fileURL, filePath string) error {
-	resp, err := openURLHTTP(client, fileURL)
+func downloadFile(ctx context.Context, client *http.Client, fileURL, filePath string) error {
+	resp, err := openURLHTTP(ctx, client, fileURL)
 	if err != nil {
 		return err
 	}
@@ -56,17 +57,22 @@ func downloadFile(client *http.Client, fileURL, filePath string) error {
 
 const userAgent = "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0"
 
-func openURLHTTP(client *http.Client, pageURL string) (*http.Response, error) {
+func openURLHTTP(ctx context.Context, client *http.Client, pageURL string) (*http.Response, error) {
 	var resp *http.Response
 	var err error
 	for attempt := 0; attempt < 5; attempt++ {
+		select {
+		case <-ctx.Done():
+			return nil, fmt.Errorf("context canceled")
+		default:
+		}
 		if attempt > 0 {
 			dur := time.Duration(attempt*attempt) * time.Second
 			log.Printf("HTTP request failed: %s - retrying in %v", err, dur)
 			time.Sleep(dur)
 		}
 		var req *http.Request
-		req, err = http.NewRequest("GET", pageURL, nil)
+		req, err = http.NewRequestWithContext(ctx, "GET", pageURL, nil)
 		if err != nil {
 			err = fmt.Errorf("http.NewRequest failed: %s", err)
 			continue
