@@ -4,6 +4,8 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/base32"
 	"flag"
 	"fmt"
 	"log"
@@ -73,15 +75,12 @@ func run(o options) error {
 		return nil
 	}
 
-	// create directories
-	err := os.MkdirAll(o.ProfilesDir, 0700)
+	// cleanup
+	profileName, err := randomProfileName()
 	if err != nil {
-		return fmt.Errorf("cannot create profiles directory: %s", err)
+		return fmt.Errorf("randomProfileName() failed: %s", err)
 	}
-	profileDirPath, err := os.MkdirTemp(o.ProfilesDir, time.Now().Format("20060102_1504_"))
-	if err != nil {
-		return fmt.Errorf("cannot create profile directory: %s", err)
-	}
+	profileDirPath := filepath.Join(o.ProfilesDir, time.Now().Format("20060102_1504_")+profileName)
 	profileCreated := false
 	defer func() {
 		// delete profile if keep flag is enabled, or the profile has not been created successfully
@@ -102,6 +101,16 @@ func run(o options) error {
 		<-signals
 		cancel()
 	}()
+
+	// create directories
+	err = os.MkdirAll(o.ProfilesDir, 0700)
+	if err != nil {
+		return fmt.Errorf("cannot create profiles directory: %s", err)
+	}
+	err = os.Mkdir(profileDirPath, 0700)
+	if err != nil {
+		return fmt.Errorf("cannot create profile directory: %s", err)
+	}
 	profileExtensionsDirPath := filepath.Join(profileDirPath, "extensions")
 	err = os.MkdirAll(profileExtensionsDirPath, 0700)
 	if err != nil {
@@ -178,4 +187,12 @@ func run(o options) error {
 		return fmt.Errorf("firefox execution failed: %s", err)
 	}
 	return nil
+}
+
+func randomProfileName() (string, error) {
+	var b [16]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		return "", fmt.Errorf("random number generator failed: %s", err)
+	}
+	return base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(b[:]), nil
 }
