@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -27,7 +26,7 @@ func openURLHTML(ctx context.Context, client *http.Client, pageURL string) ([]by
 	if resp.StatusCode < 200 || resp.StatusCode > 399 {
 		return nil, fmt.Errorf("status_code=%d", resp.StatusCode)
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %s", err)
 	}
