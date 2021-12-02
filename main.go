@@ -183,7 +183,10 @@ func run(o options) error {
 	profileCreated = true
 
 	// start firefox
-	if err := exec.CommandContext(ctx, "firefox", "--no-remote", "--profile", profileDirPath).Run(); err != nil {
+	cmd := exec.CommandContext(ctx, "firefox", "--no-remote", "--profile", profileDirPath)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("firefox execution failed: %s", err)
 	}
 	return nil
