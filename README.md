@@ -4,7 +4,7 @@
 
 1. Creates a temporary *Firefox* profile
 2. Installs `user.js` configuration file from [Arkenfox](https://github.com/arkenfox/user.js) for increased privacy and security
-3. Installs extensions [uBlock Origin](https://addons.mozilla.org/en-US/firefox/addon/ublock-origin/), [ClearURLs](https://addons.mozilla.org/en-US/firefox/addon/clearurls/), [Simple Temporary Containers](https://addons.mozilla.org/en-US/firefox/addon/simple-temporary-containers/), and any other extension you specify
+3. Installs extensions [uBlock Origin](https://addons.mozilla.org/en-US/firefox/addon/ublock-origin/), [ClearURLs](https://addons.mozilla.org/en-US/firefox/addon/clearurls/), [Simple Temporary Containers](https://addons.mozilla.org/en-US/firefox/addon/simple-temporary-containers/), [Bypass Twitter login wall](https://addons.mozilla.org/en-US/firefox/addon/bypass-twitter-login-wall/), and any other extension you specify
 4. Launches *Firefox*
 
 Installed extensions are not enabled. *tmpfox* sets the homepage to `about:addons` so you can easily enable them manually once *Firefox* starts.

@@ -52,13 +52,14 @@ func main() {
 	flag.StringVar(&o.ProfilesDir, "dir", filepath.Join(os.TempDir(), appName), "Profiles' directory")
 	flag.BoolVar(&o.Keep, "keep", false, "Do not delete profile on exit")
 	flag.StringVar(&o.UserJsURL, "userjs", "https://raw.githubusercontent.com/arkenfox/user.js/master/user.js", "user.js download URL")
-	flag.Var(&o.Extensions, "ext", "Extension to install in the profile. Use the slug name of the extension as argument. You can find the slug at the last part of the URL of the extension: https://addons.mozilla.org/en-US/firefox/addon/slug/. You can use this option multiple times to download multiple extensions. Additionally the following recommended extensions are downloaded: uBlock Origin, ClearURLs, Simple Temporary Containers")
-	flag.BoolVar(&o.ExtensionNoRec, "ext-no-rec", false, "Do not download the recommended extensions (uBlock Origin, ClearURLs, Simple Temporary Containers)")
+	flag.Var(&o.Extensions, "ext", "Extension to install in the profile. Use the slug name of the extension as argument. You can find the slug at the last part of the URL of the extension: https://addons.mozilla.org/en-US/firefox/addon/slug/. You can use this option multiple times to download multiple extensions. Additionally the following recommended extensions are downloaded: uBlock Origin, ClearURLs, Simple Temporary Containers, Bypass Twitter login wall")
+	flag.BoolVar(&o.ExtensionNoRec, "ext-no-rec", false, "Do not download the recommended extensions (uBlock Origin, ClearURLs, Simple Temporary Containers, Bypass Twitter login wall)")
 	flag.Parse()
 	if !o.ExtensionNoRec {
 		o.Extensions["ublock-origin"] = struct{}{}
 		o.Extensions["clearurls"] = struct{}{}
 		o.Extensions["simple-temporary-containers"] = struct{}{}
+		o.Extensions["bypass-twitter-login-wall"] = struct{}{}
 	}
 	if err := run(o); err != nil {
 		log.Printf("fatal error: %s\n", err)
