@@ -1,5 +1,6 @@
 // Copyright (C) 2021 Charalampos Mitsakis (go.mitsakis.org/tmpfox)
 // Licensed under the EUPL-1.2-or-later
+
 package main
 
 import (
