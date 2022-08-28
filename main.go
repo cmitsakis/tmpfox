@@ -145,10 +145,10 @@ func run(o options) error {
 			if err != nil {
 				return fmt.Errorf("failed to run command 'firefox --version': %s", err)
 			}
-			r := regexp.MustCompile(`Mozilla Firefox ([0-9]+)\.[0-9]+\.[0-9]+`)
+			r := regexp.MustCompile(`Mozilla Firefox ([0-9]+)\.[0-9]+`)
 			matches := r.FindSubmatch(output)
 			if len(matches) < 2 {
-				return fmt.Errorf("regular expression failed to find matches on the output of command 'firefox --version'")
+				return fmt.Errorf("regular expression failed to find matches on the output of command 'firefox --version': %s", output)
 			}
 			firefoxVersionMajor, err := strconv.Atoi(string(matches[1]))
 			if err != nil {
