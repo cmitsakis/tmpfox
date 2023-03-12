@@ -67,6 +67,7 @@ func main() {
 		o.Extensions["clearurls"] = struct{}{}
 		o.Extensions["simple-temporary-containers"] = struct{}{}
 		o.Extensions["bypass-twitter-login-wall"] = struct{}{}
+		o.Extensions["auto-tab-discard"] = struct{}{}
 	}
 	if err := run(o); err != nil {
 		log.Printf("fatal error: %s\n", err)
