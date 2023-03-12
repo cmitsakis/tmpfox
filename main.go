@@ -66,7 +66,6 @@ func main() {
 		o.Extensions["ublock-origin"] = struct{}{}
 		o.Extensions["clearurls"] = struct{}{}
 		o.Extensions["simple-temporary-containers"] = struct{}{}
-		o.Extensions["bypass-twitter-login-wall"] = struct{}{}
 		o.Extensions["auto-tab-discard"] = struct{}{}
 	}
 	if err := run(o); err != nil {
