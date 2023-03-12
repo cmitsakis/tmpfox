@@ -15,12 +15,17 @@ The temporary profile is deleted on exit (unless you use the flag `-keep`).
 
 The above describes the default behavior without any command line options.
 
-If you want to install more extensions, you should use the `-ext` option with the extension's slug as argument.
+If you want to install more extensions, you should use the `-ext` option with the extension's slug or URL as argument.
 The slug is the last part of the URL of the extension, e.g. for `https://addons.mozilla.org/en-US/firefox/addon/privacy-badger17/` the slug is `privacy-badger17`:
 
 If you want to install the extensions *Privacy Badger* and *Firefox Multi-Account Containers* (in addition to the recommended extensions):
 ```sh
 tmpfox -ext privacy-badger17 -ext multi-account-containers
+```
+
+You can also use the URL of the extension:
+```sh
+tmpfox -ext https://www.eff.org/files/privacy-badger-latest.xpi
 ```
 
 If you don't want to install the recommended extensions, but only *uBlock Origin* and *Firefox Multi-Account Containers*:

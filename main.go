@@ -267,22 +267,41 @@ func run(o options) error {
 
 		// download extensions
 		for extensionSlug := range o.Extensions {
-			extensionPageURL := "https://addons.mozilla.org/en-US/firefox/addon/" + extensionSlug + "/"
-			log.Println("visiting", extensionPageURL)
-			pageHTML, err := openURLHTML(ctx, client, extensionPageURL)
-			if err != nil {
-				return fmt.Errorf("cannot open url %s - error: %s", extensionPageURL, err)
-			}
-			extensionGUID, err := extractGUIDFromHTML(pageHTML)
-			if err != nil {
-				return fmt.Errorf("failed to extract GUID from html: %s", err)
-			}
-			extensionXpiURL := "https://addons.mozilla.org/firefox/downloads/latest/" + extensionSlug + "/" + extensionSlug + ".xpi"
-			extensionXpiDownloadPath := filepath.Join(profileExtensionsDirPath, extensionGUID+".xpi")
-			log.Println("downloading extension", extensionXpiURL, "-->", extensionXpiDownloadPath)
-			err = downloadFile(ctx, client, extensionXpiURL, extensionXpiDownloadPath)
-			if err != nil {
-				return fmt.Errorf("failed to download extension from url %s - error: %s", extensionXpiURL, err)
+			if strings.HasPrefix(extensionSlug, "https://") || strings.HasPrefix(extensionSlug, "http://") {
+				extensionXpiURL := extensionSlug
+				extensionXpiDownloadPath := filepath.Join(profileExtensionsDirPath, "extension.xpi")
+				log.Println("downloading extension", extensionXpiURL, "-->", extensionXpiDownloadPath)
+				err = downloadFile(ctx, client, extensionXpiURL, extensionXpiDownloadPath)
+				if err != nil {
+					return fmt.Errorf("failed to download extension from url %s - error: %s", extensionXpiURL, err)
+				}
+				extensionGUID, err := extractGUIDFromXPI(extensionXpiDownloadPath)
+				if err != nil {
+					return fmt.Errorf("failed to extract GUID from XPI: %s", err)
+				}
+				log.Printf("renaming extension file to %v.xpi", extensionGUID)
+				err = os.Rename(extensionXpiDownloadPath, filepath.Join(profileExtensionsDirPath, extensionGUID+".xpi"))
+				if err != nil {
+					return fmt.Errorf("os.Rename() failed: %s", err)
+				}
+			} else {
+				extensionPageURL := "https://addons.mozilla.org/en-US/firefox/addon/" + extensionSlug + "/"
+				log.Println("visiting", extensionPageURL)
+				pageHTML, err := openURLHTML(ctx, client, extensionPageURL)
+				if err != nil {
+					return fmt.Errorf("cannot open url %s - error: %s", extensionPageURL, err)
+				}
+				extensionGUID, err := extractGUIDFromHTML(pageHTML)
+				if err != nil {
+					return fmt.Errorf("failed to extract GUID from html: %s", err)
+				}
+				extensionXpiURL := "https://addons.mozilla.org/firefox/downloads/latest/" + extensionSlug + "/" + extensionSlug + ".xpi"
+				extensionXpiDownloadPath := filepath.Join(profileExtensionsDirPath, extensionGUID+".xpi")
+				log.Println("downloading extension", extensionXpiURL, "-->", extensionXpiDownloadPath)
+				err = downloadFile(ctx, client, extensionXpiURL, extensionXpiDownloadPath)
+				if err != nil {
+					return fmt.Errorf("failed to download extension from url %s - error: %s", extensionXpiURL, err)
+				}
 			}
 		}
 		return nil

@@ -4,6 +4,7 @@
 package main
 
 import (
+	"archive/zip"
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
@@ -55,4 +56,57 @@ func extractGUIDFromHTML(pageHTML []byte) (string, error) {
 		return key, nil
 	}
 	return "", fmt.Errorf("not found")
+}
+
+type extensionManifest struct {
+	BrowserSpecificSettings struct {
+		Gecko struct {
+			ID string
+		}
+	} `json:"browser_specific_settings"`
+	Applications struct {
+		Gecko struct {
+			ID string
+		}
+	}
+}
+
+func extractGUIDFromXPI(xpiPath string) (string, error) {
+	rc, err := zip.OpenReader(xpiPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to open XPI file: %s", err)
+	}
+	defer rc.Close()
+	for _, f := range rc.File {
+		if f.Name != "manifest.json" {
+			continue
+		}
+		guid, err := extractGUIDFromZipFileManifest(f)
+		if err != nil {
+			return "", fmt.Errorf("failed to extract GUID from manifest.json: %s", err)
+		}
+		return guid, nil
+	}
+	return "", fmt.Errorf("manifest.json file not found")
+}
+
+func extractGUIDFromZipFileManifest(f *zip.File) (string, error) {
+	rc, err := f.Open()
+	if err != nil {
+		return "", fmt.Errorf("failed to open file in ZIP: %s", err)
+	}
+	defer rc.Close()
+	var m extensionManifest
+	err = json.NewDecoder(rc).Decode(&m)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode JSON: %s", err)
+	}
+	id := m.BrowserSpecificSettings.Gecko.ID
+	if id == "" {
+		id = m.Applications.Gecko.ID
+	}
+	if id == "" {
+		return "", fmt.Errorf("ID not found")
+	}
+	return id, nil
 }
